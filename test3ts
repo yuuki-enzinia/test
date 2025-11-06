@@ -1,0 +1,80 @@
+
+export {}; 
+
+const hello = () => {
+  console.log("Hello");
+}
+
+
+type Primitive = string | number | boolean;
+type NestedData = Primitive | NestedObject | NestedArray;
+
+interface NestedObject {
+  [key: string]: NestedData;
+}
+type AnyData = Record<string, NestedData>;
+
+interface NestedArray extends Array<NestedData> {}
+
+function mergeNestedData(a: NestedData, b: NestedData): NestedData {
+  // 両方配列の場合
+  if (Array.isArray(a) && Array.isArray(b)) {
+    return [...a, ...b];
+  }
+
+  // 一方が配列、もう一方が配列でない場合は b を優先
+  if (Array.isArray(a) || Array.isArray(b)) return b;
+
+  // 両方オブジェクトの場合
+  if (typeof a === "object" && a !== null && typeof b === "object" && b !== null) {
+    const result: NestedObject = { ...a };
+    for (const key in b as NestedObject) {
+      if (key in result) {
+        result[key] = mergeNestedData(result[key], (b as NestedObject)[key]);
+      } else {
+        result[key] = (b as NestedObject)[key];
+      }
+    }
+    return result;
+  }
+
+  // プリミティブの場合は b で上書き
+  return b;
+}
+
+function mergeAnyData(a: AnyData, b: AnyData): AnyData {
+  const result: AnyData = { ...a };
+  for (const key in b) {
+    if (key in result) {
+      result[key] = mergeNestedData(result[key], b[key]);
+    } else {
+      result[key] = b[key];
+    }
+  }
+  return result;
+}
+
+// 使用例
+const a: AnyData = {
+  x: 1,
+  y: { z: true, arr: [1, 2] },
+  w: "foo"
+};
+
+const b: AnyData = {
+  x: 2,
+  y: { z: false, arr: [3, 4] },
+  newKey: "bar"
+};
+
+console.log(mergeAnyData(a, b));
+
+/*
+出力例:
+{
+  x: 2,                      // bの値で上書き
+  y: { z: false, arr: [1,2,3,4] }, // オブジェクト再帰マージ + 配列連結
+  w: "foo",                   // aのまま
+  newKey: "bar"               // bだけのキー追加
+}
+*/
