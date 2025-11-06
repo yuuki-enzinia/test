@@ -1,9 +1,5 @@
 
 export {}; // ←これだけでモジュール扱いになる
-
-const hello = () => {
-  console.log("Hello");
-}
 type AnyData = {
   [key: string]: string 
 };
