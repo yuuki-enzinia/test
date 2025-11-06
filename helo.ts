@@ -1,9 +1,5 @@
 export {}; 
 
-const hello = () => {
-  console.log("Hello");
-}
-
 type Primitive = string | number | boolean;
 type NestedData = Primitive | NestedObject | NestedArray;
 
@@ -17,4 +13,5 @@ const example: NestedObject = {
   address: { city: "hello" },
   favorites: ["hello", "helllo"],
 };
+
 
